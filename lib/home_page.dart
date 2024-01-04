@@ -26,15 +26,11 @@ class BottomNavBar extends StatefulWidget {
 
 class _BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
-
+  List<Workers> starredWorkers = Workers.getStarredWorkers();
   late final List<Widget> _widgetOptions = <Widget>[
     Scaffold(
-        body: Wrap(
-      children: [
-        createSavedContactObject(),
-        createSavedContactObject(),
-      ],
-    )),
+      body: createSavedContactObject(starredWorkers),
+    ),
     createContactObject(),
   ];
 
@@ -127,50 +123,41 @@ class _BottomNavBarState extends State<BottomNavBar> {
     }
   }
 
-  static createSavedContactObject() {
-    return Card(
-      margin: const EdgeInsets.only(top: 20.0),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Row(
-          children: <Widget>[
-            Icon(Icons.person_2),
-            Expanded(
-              child: Column(
-                children: <Widget>[
-                  Text(initializeContact(1)),
-                  Text("esimerkki@säpö.com"),
-                  Text(initializeContact(0))
+  static createSavedContactObject(starredWorkers) {
+    List<Card> vitu = [];
+    for (var i = 0; i < starredWorkers.length; i++) {
+      vitu.add(Card(
+        margin: const EdgeInsets.only(top: 20.0),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Row(
+            children: <Widget>[
+              Icon(Icons.person_2),
+              Expanded(
+                child: Column(
+                  children: <Widget>[
+                    Text(starredWorkers[i].name),
+                    Text(starredWorkers[i].email),
+                    Text(starredWorkers[i].mobile)
+                  ],
+                ),
+              ),
+              Column(
+                children: [
+                  Row(
+                    children: <Widget>[Text("Taitamo")],
+                  ),
                 ],
               ),
-            ),
-            Column(
-              children: [
-                Row(
-                  children: <Widget>[Text("Taitamo  ")],
-                ),
-              ],
-            ),
-            Row(
-              children: <Widget>[Icon(Icons.star)],
-            )
-          ],
+              Row(
+                children: <Widget>[Icon(Icons.star)],
+              )
+            ],
+          ),
         ),
-      ),
-    );
-  }
-}
-
-initializeContact(index) {
-  late final _faker = Faker();
-  String firstName = _faker.person.firstName();
-  String lastName = _faker.person.lastName();
-  String name = "$firstName $lastName";
-  String mobile = _faker.phoneNumber.us();
-  if (index == 1) {
-    return name;
-  } else if (index == 0) {
-    return mobile;
+      ));
+      return vitu;
+    }
   }
 }
 
@@ -213,7 +200,13 @@ class Workers {
           unit: "Luotsi",
           email: 'luotsi@mail.com',
           mobile: '123123123',
-          starred: false),
+          starred: true),
     ];
+  }
+
+  static List<Workers> getStarredWorkers() {
+    var allWorkers = getWorkers();
+    allWorkers.removeWhere((item) => !item.starred);
+    return allWorkers;
   }
 }
