@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, avoid_print, no_leading_underscores_for_local_identifiers
+// ignore_for_file: prefer_const_constructors, avoid_print, no_leading_underscores_for_local_identifiers, prefer_const_literals_to_create_immutables, dead_code, prefer_const_constructors_in_immutables
 
 import 'package:faker/faker.dart';
 
@@ -11,14 +11,14 @@ class ContactInformation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       home: BottomNavBar(),
     );
   }
 }
 
 class BottomNavBar extends StatefulWidget {
-  const BottomNavBar({super.key});
+  BottomNavBar({super.key});
 
   @override
   State<BottomNavBar> createState() => _BottomNavBarState();
@@ -26,39 +26,16 @@ class BottomNavBar extends StatefulWidget {
 
 class _BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
-  static final List<Widget> _widgetOptions = <Widget>[
+
+  late final List<Widget> _widgetOptions = <Widget>[
     Scaffold(
-        body: Padding(
-      padding: const EdgeInsets.fromLTRB(18, 5, 0, 0),
-      child: Text("No Saved Contacts"),
+        body: Wrap(
+      children: [
+        createSavedContactObject(),
+        createSavedContactObject(),
+      ],
     )),
-    Scaffold(
-      body: Padding(
-          padding: EdgeInsets.all(10),
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      Expanded(child: Icon(Icons.person_2)),
-                      Expanded(child: Text(initializeContact(1))),
-                      Expanded(child: Text("Taitamo")),
-                      Expanded(child: Text(initializeContact(0))),
-                      Expanded(
-                          child: IconButton(
-                        onPressed: () {
-                          print("object");
-                        },
-                        icon: Icon(Icons.star),
-                        color: Colors.orange,
-                      )),
-                    ]),
-              )
-            ],
-          )),
-    ),
+    createContactObject(),
   ];
 
   void _onItemTapped(int index) {
@@ -93,6 +70,95 @@ class _BottomNavBarState extends State<BottomNavBar> {
       ),
     );
   }
+
+  createContactObject() {
+    late final workers = Workers.getWorkers();
+    var sort = false;
+    var selectedColumn = 0;
+    var selectedWorkers = [];
+
+    return Scaffold(
+      body: SingleChildScrollView(
+          child: Center(
+        child: DataTable(
+          columns: [
+            DataColumn(label: Text("Nimi")),
+            DataColumn(label: Text("Yksikkö")),
+            DataColumn(label: Text("Säpö")),
+            DataColumn(label: Text("Kuva")),
+            DataColumn(label: Text("Tähti")),
+          ],
+          rows: workers
+              .map(
+                (worker) =>
+                    DataRow(selected: selectedWorkers.contains(worker), cells: [
+                  DataCell(
+                    Text(worker.name),
+                  ),
+                  DataCell(
+                    Text(worker.unit),
+                  ),
+                  DataCell(
+                    Text(worker.email),
+                  ),
+                  DataCell(
+                    Text(worker.mobile),
+                  ),
+                  DataCell(
+                    getIcon(worker.starred),
+                  ),
+                ]),
+              )
+              .toList(),
+        ),
+      )),
+    );
+  }
+
+  getIcon(bool starred) {
+    if (starred) {
+      return Icon(
+        Icons.star,
+      );
+    } else if (!starred) {
+      return Icon(
+        Icons.star_border,
+      );
+    }
+  }
+
+  static createSavedContactObject() {
+    return Card(
+      margin: const EdgeInsets.only(top: 20.0),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Row(
+          children: <Widget>[
+            Icon(Icons.person_2),
+            Expanded(
+              child: Column(
+                children: <Widget>[
+                  Text(initializeContact(1)),
+                  Text("esimerkki@säpö.com"),
+                  Text(initializeContact(0))
+                ],
+              ),
+            ),
+            Column(
+              children: [
+                Row(
+                  children: <Widget>[Text("Taitamo  ")],
+                ),
+              ],
+            ),
+            Row(
+              children: <Widget>[Icon(Icons.star)],
+            )
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 initializeContact(index) {
@@ -105,5 +171,49 @@ initializeContact(index) {
     return name;
   } else if (index == 0) {
     return mobile;
+  }
+}
+
+class Workers {
+  String name;
+  String unit;
+  String email;
+  String mobile;
+  bool starred;
+
+  Workers(
+      {required this.name,
+      required this.unit,
+      required this.email,
+      required this.mobile,
+      required this.starred});
+
+  static List<Workers> getWorkers() {
+    return <Workers>[
+      Workers(
+          name: "Ahmo Micelanhc",
+          unit: "Taitamo",
+          email: 'taitamo@mail.com',
+          mobile: '123456789',
+          starred: true),
+      Workers(
+          name: "Shroc Croc",
+          unit: "Luotsi",
+          email: 'luotsi@mail.com',
+          mobile: '123789456',
+          starred: false),
+      Workers(
+          name: "Christoffer Wistoffer",
+          unit: "TE-Toimisto",
+          email: 'te@mail.com',
+          mobile: '321654987',
+          starred: false),
+      Workers(
+          name: "Liisa Järvinen",
+          unit: "Luotsi",
+          email: 'luotsi@mail.com',
+          mobile: '123123123',
+          starred: false),
+    ];
   }
 }
