@@ -5,6 +5,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(const ContactInformation());
+int foija = 0;
 
 class ContactInformation extends StatelessWidget {
   const ContactInformation({super.key});
@@ -26,11 +27,14 @@ class BottomNavBar extends StatefulWidget {
 
 class _BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
+
   List<Workers> starredWorkers = Workers.getStarredWorkers();
   late final List<Widget> _widgetOptions = <Widget>[
-    Scaffold(
-      body: createSavedContactObject(starredWorkers),
-    ),
+    ListView.builder(
+        itemCount: starredWorkers.length,
+        itemBuilder: (BuildContext context, int index) {
+          return createSavedContactObject(index);
+        }),
     createContactObject(),
   ];
 
@@ -123,41 +127,37 @@ class _BottomNavBarState extends State<BottomNavBar> {
     }
   }
 
-  static createSavedContactObject(starredWorkers) {
-    List<Card> vitu = [];
-    for (var i = 0; i < starredWorkers.length; i++) {
-      vitu.add(Card(
-        margin: const EdgeInsets.only(top: 20.0),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
-            children: <Widget>[
-              Icon(Icons.person_2),
-              Expanded(
-                child: Column(
-                  children: <Widget>[
-                    Text(starredWorkers[i].name),
-                    Text(starredWorkers[i].email),
-                    Text(starredWorkers[i].mobile)
-                  ],
-                ),
-              ),
-              Column(
-                children: [
-                  Row(
-                    children: <Widget>[Text("Taitamo")],
-                  ),
+  createSavedContactObject(index) {
+    return (Card(
+      margin: const EdgeInsets.only(top: 20.0),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Row(
+          children: <Widget>[
+            Icon(Icons.person_2),
+            Expanded(
+              child: Column(
+                children: <Widget>[
+                  Text(starredWorkers[index].name),
+                  Text(starredWorkers[index].email),
+                  Text(starredWorkers[index].mobile)
                 ],
               ),
-              Row(
-                children: <Widget>[Icon(Icons.star)],
-              )
-            ],
-          ),
+            ),
+            Column(
+              children: [
+                Row(
+                  children: <Widget>[Text("Taitamo")],
+                ),
+              ],
+            ),
+            Row(
+              children: <Widget>[Icon(Icons.star)],
+            )
+          ],
         ),
-      ));
-      return vitu;
-    }
+      ),
+    ));
   }
 }
 
@@ -188,7 +188,7 @@ class Workers {
           unit: "Luotsi",
           email: 'luotsi@mail.com',
           mobile: '123789456',
-          starred: false),
+          starred: true),
       Workers(
           name: "Christoffer Wistoffer",
           unit: "TE-Toimisto",
